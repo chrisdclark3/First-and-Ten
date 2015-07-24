@@ -1,0 +1,15 @@
+// Import Bootstrap for Sass
+@import "_bootstrap.scss";
+@import "font-awesome.scss";
+// Import custom Bootstrap variables
+@import "var.scss";
+@import "rooms.scss";
+@import "room.scss";
+@import "home.scss";
+
+html, body {
+	height: 100%;
+	width: 100%;
+}
+
+

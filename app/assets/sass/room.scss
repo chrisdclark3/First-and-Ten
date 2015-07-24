@@ -1,0 +1,55 @@
+#room {
+	height: 100%;
+	.message {
+		width: 50%;
+		border: 1px solid black;
+		.row, .thumbnail, .col-xs-1 {
+			padding: 0;
+			margin: 0;
+		}
+		.col-xs-1 {
+			padding-left: 5px;
+		}
+		i, h4 {
+			margin-bottom: 5px;
+			padding-top: 0;
+			padding-bottom: 0;
+			display: inline-block;
+		}
+		p {
+			display: block;
+			margin-bottom: 5px;
+			padding-top: 0;
+			padding-bottom: 0;
+		}
+		.fa-times {
+			position: absolute;
+			top: 5px;
+			right: 5px;
+		}
+		.icon-wrapper {
+			&:before {
+			    content: ' ';
+			    display: inline-block;
+			    vertical-align: middle;
+			}
+			display: inline-block;
+    	height: 100%;
+    	vertical-align: middle;
+    	text-align: center;
+			img {
+				margin-top: -10px;
+				display: inline-block;
+				vertical-align: top;
+				border-radius: 50%;
+				height: 3em;
+				width: 3em;
+			}
+		}
+	}
+	#modal {
+		background-color: white;
+		min-height: 30vh;
+		min-width: 30vh;
+	}
+}

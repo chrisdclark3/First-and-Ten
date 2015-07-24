@@ -1,0 +1,29 @@
+#home {
+    font-family: sans-serif;
+    background-color: #f15941 !important;
+    height: 100%;
+    width: 100%;
+    .jumbotron {
+        background-color: transparent;
+    }
+    h1 {
+        text-transform: uppercase;
+        color: #fdf6f0;
+        font-size: 7.5em;
+        font-weight: bold;
+        text-shadow: 0.08em 0em #940f08;
+        overflow: hidden;
+        text-align: left;
+    }
+    #welcomeHeader {
+        height: 40em;
+    }
+    button {
+        background-color: #3B5998;
+        vertical-align: middle;
+        color: white;
+        i {
+            color: white;
+        }
+    }
+}

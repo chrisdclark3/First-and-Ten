@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Index</title>
+	<link rel="stylesheet" href="assets/css/styles.css">
+	<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+	<script type="text/javascript"> google.load("feeds", "1")</script>
+
+	<script src="assets/js/angular.min.js"></script>
+	<script src="assets/js/bootstrap.min.js"></script>
+	<script src="assets/js/angular-route.min.js"></script>
+	<script src="assets/js/angular-local-storage.min.js"></script>
+	<script src="assets/js/socket.io.js"></script>
+	<script src="assets/js/ngFacebook.js"></script>
+
+	<script src="app.js"></script>
+	<script src="services/socket.js"></script>
+	<script src="services/news.js"></script>
+	<script src="controllers/rooms.js"></script>
+	<script src="controllers/welcome.js"></script>
+	<script src="services/room.js"></script>
+
+	<script src="controllers/users.js"></script>
+	<script src="controllers/room.js"></script>
+</head>
+<body ng-app="app">
+
+		<div ng-view>
+
+		</div>
+</body>
+</html>
