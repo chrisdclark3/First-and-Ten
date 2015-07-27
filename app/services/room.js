@@ -1,9 +1,10 @@
-app.factory('Room', function (Socket, $rootScope, localStorageService) {
+app.factory('Room', function (Socket, Feed, $rootScope, localStorageService) {
 
 	factory = {};
 
 	factory.currentRoom = localStorageService.get('currentRoom');
 	factory.currentUser = localStorageService.get('currentUser');
+
 	console.log("FACT > Socket", Socket);
 	console.log("\nFACT CURRENT ROOM", factory.currentRoom, " \n");
 
@@ -21,17 +22,15 @@ app.factory('Room', function (Socket, $rootScope, localStorageService) {
 		$rootScope.$broadcast('roomSet');
 	});
 
-
 	factory.getRoom = function (queryData) {
-		queryData.roomId = this.currentRoom._id;
-		queryData.user = this.currentUser;
+		queryData.roomId = factory.currentRoom._id;
+		queryData.user = factory.currentUser;
 		Socket.emit('getRoom', queryData);
 	};
 
-
 	factory.updateRoom = function (resData) {
 		console.log('FACT > updateRoom > resData', resData);
-		this.currentRoom = resData;
+		factory.currentRoom = resData;
 		localStorageService.set('currentRoom', resData);
 		$rootScope.$broadcast('roomUpdate', resData);
 	};
@@ -41,17 +40,6 @@ app.factory('Room', function (Socket, $rootScope, localStorageService) {
 		factory.updateRoom(resData);
 	});
 
-	factory.sendMessage = function (queryData) {
-		queryData.roomId = this.currentRoom._id;
-		queryData.currentUser = this.currentUser;
-		Socket.emit('sendMessage', queryData);
-	};
-
-	factory.deleteMessage = function (queryData) {
-		console.log('SOCKET > deleteMessage > queryData', queryData);
-		queryData.roomId = this.currentRoom._id;
-		Socket.emit('deleteMessage', queryData);
-	};
 
 	Socket.on('errors', function (error) {
 		$rootScope.$broadcast('error', error);

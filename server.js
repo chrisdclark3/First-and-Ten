@@ -15,7 +15,6 @@ app.use(bodyParser.urlencoded({
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/1stand10');
 var Room = require(directory + '/server/models/room.js');
-// var seeds = require(directory + '/server/config/seeds.js');
 
 app.use(express.static('./app'));
 
@@ -35,7 +34,6 @@ io.sockets.on('connection', function(socket) {
 	});
 
 	socket.on('getRooms', function() {
-
 		Room.find({}, function(err, data) {
 			console.log('SERVER > GET ROOMS > DATA', data);
 			if (err) {
@@ -63,20 +61,30 @@ io.sockets.on('connection', function(socket) {
 		Room.findOne({
 			_id: data.roomId
 		}, function(err, room) {
-			if (err) {
-				socket.emit('errors', err);
-			} else {
-				console.log('SERVER > NEW MESSAGE > DATA', data);
-				var message = {
-					user: data.user,
-					content: data.content,
-					createdAt: new Date()
+			var hasStory = false;
+			var currentStory;
+			var currentStoryIndex;
+			var message = {
+				content: data.content,
+				user: data.currentUser
+			};
+			room.stories.forEach(function(story) {
+				if (story.title == data.story.title) {
+					hasStory = true;
+					currentStory = story;
+					currentStoryIndex = room.stories.indexOf(story);
 				}
-				room.messages.push(message);
-				room.save();
-				console.log('SERVER > NEW MESSAGE > UPDATED ROOM', room);
-				io.to(data.roomId).emit('updateRoom', room);
+			});
+			if (hasStory === false) {
+				data.story.messages = [message];
+				room.stories.push(data.story);
+			} else {
+				room.stories[currentStoryIndex].messages.push(message);
 			}
+
+			room.save();
+			console.log('SERVER > NEW MESSAGE > UPDATED ROOM', room);
+			io.to(data.roomId).emit('updateRoom', room);
 		});
 	});
 
@@ -86,14 +94,16 @@ io.sockets.on('connection', function(socket) {
 				_id: data.roomId
 			}, {
 				$pull: {
-					messages: {
-						_id: data._id
+					stories: {
+						messages: {
+							_id: data._id
+						}
 					}
 				}
 			}, {
 				new: true
 			},
-			function(err, updatedRoom) {
+			function (err, updatedRoom) {
 				if (err) {
 					socket.emit('errors', err);
 				} else {
@@ -101,9 +111,9 @@ io.sockets.on('connection', function(socket) {
 					console.log('SERVER > updatedRoom._id', updatedRoom._id);
 					io.to(updatedRoom._id).emit('updateRoom', updatedRoom);
 				}
-			});
+			}
+		);
 	});
-
 });
 
 // socket.on('new_user', function (data) {

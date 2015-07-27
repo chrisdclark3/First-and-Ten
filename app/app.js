@@ -1,4 +1,4 @@
-app = angular.module('app', ['ui.bootstrap', 'ngFacebook', 'ngRoute', 'LocalStorageModule']);
+app = angular.module('app', [ 'ngResource', 'ngSanitize','ui.bootstrap','ngFacebook', 'ngRoute', 'LocalStorageModule']);
 
 app.constant('HOST', 'http://localhost:6789');
 app.constant('fbConfigSettings', { 'appID':'1662976117248382' });

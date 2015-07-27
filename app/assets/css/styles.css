@@ -9703,7 +9703,7 @@ button.close {
   height: 100%;
 }
 #room .message {
-  width: 50%;
+  width: 100%;
   border: 1px solid black;
 }
 #room .message .row, #room .message .thumbnail, #room .message .col-xs-1 {

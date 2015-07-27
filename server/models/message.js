@@ -4,7 +4,7 @@ var Schema = mongoose.Schema;
 var MessageSchema = new mongoose.Schema({
     user: Schema.Types.Mixed,
     content: String,
-    createdAt: Date,
+    createdAt: { type: Date, default: Date.now() }
 });
 
 module.exports = MessageSchema;

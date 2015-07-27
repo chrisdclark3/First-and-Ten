@@ -2,19 +2,21 @@ var mongoose = require('mongoose');
 var path = require("path");
 var directory = path.resolve('./');
 var Schema = mongoose.Schema;
-var MessageSchema = require(directory + '/server/models/message.js');
+var StorySchema = require(directory + '/server/models/story.js');
+var deepPopulate = require('mongoose-deep-populate');
+var findOrCreate = require('mongoose-findorcreate');
 
 var RoomSchema = new mongoose.Schema({
-	messages: [MessageSchema],
 	image: String,
 	abbr: String,
-	name: String
+	name: String,
+  keywords: [],
+  stories: [StorySchema]
 });
+
+RoomSchema.plugin(deepPopulate);
+RoomSchema.plugin(findOrCreate);
 
 var Room = mongoose.model('Room', RoomSchema);
 
-module.exports = (function() {
-
-	return Room;
-
-})();
+module.exports = (function() { return Room; })();
