@@ -12,6 +12,7 @@ var StorySchema = new mongoose.Schema({
   contentSnippet: String,
   link: String,
   title: String,
+  image: String,
   messages: [MessageSchema]
 });
 

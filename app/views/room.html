@@ -1,19 +1,27 @@
 <div ng-include src="'views/navbar.html'" autoscroll></div>
 <div class="container" ng-controller="RoomCtrl">
-	<div id="room" ng-controller="FeedCtrl">
-		<h1>Welcome to {{ currentRoom.name }}</h1>
+	<div id="room">
+		<h1>the {{ currentRoom.name }}</h1>
 		<p ng-if="errors"> {{ errors }}</p>
 		<div class="row">
 			<div class="col-xs-6">
-				<div class="message" ng-repeat="message in currentRoom.messages">
-					<div class="row">
-						<div class="col-xs-1 icon-wrapper">
-							<img ng-src="{{ message.user.image }}" class="thumbnail" alt="">
+				<div class="storyMsg" ng-repeat="story in currentRoom.stories">
+					<div class="story-wrapper">
+						<div class="row">
+							<img ng-src="{{ story.image }}" alt="" class="story-thumbnail img-responsive">
+							<h4><a href="{{ story.link }}" target="_blank">{{story.title}}</a></h4>
 						</div>
-						<div class="col-xs-11">
-							<h4>{{ message.user.name }}<small>{{ message.createdAt | date: "MM/dd/yyyy 'at' h:mma" }}</small></h4>
-							<p>{{ message.content }}</p>
-							<i class="fa fa-times fa-lg" ng-show="message.user = currentUser" ng-click="deleteMessage(message)"></i>
+					</div>
+					<div class="message" ng-repeat="message in story.messages">
+						<div class="row">
+							<div class="col-xs-1 icon-wrapper">
+								<img ng-src="{{ message.user.image }}" class="thumbnail" alt="">
+							</div>
+							<div class="col-xs-11">
+								<h5>{{ message.user.name }}<small>{{ message.createdAt | date: "MM/dd/yyyy 'at' h:mma" }}</small></h5>
+								<p>{{ message.content }}</p>
+								<i class="fa fa-times fa-lg" ng-show="message.user = currentUser" ng-click="deleteMessage(message)"></i>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -25,22 +33,35 @@
 					</div>
 					<div id="searchFeed">
 						<div class="searchStory" ng-repeat="title in searchFeed">
-							<p ng-click="setMessageStory(title)">{{ title }}</p>
+							<p ng-click="setMessageStory(title)" ng-bind-html="title">{{ title }}</p>
 						</div>
 					</div>
 				</div>
-				</div>
-				<div class="col-xs-6">
-					<div>
-						ESPN
-						<div id="feed" ng-repeat="story in sortedFeed">
-							<div class="story">
-								<a href="{{ story.link }}"><h4 ng-bind-html="story.title"></h4></a>
-								<p ng-bind-html="story.publishedDate | date: 'short'"></p>
-							</div>
+			</div>
+			<div class="col-xs-6">
+				<div id="news-feed">
+					<div id="feed-header">
+					<h4>Select a news feed: </h4>
+					<div class="btn-group" dropdown>
+						<button id="split-button" type="button" class="btn btn-info">{{ feedSrc }}</button>
+							<button type="button" class="btn btn-info" dropdown-toggle>
+							<span class="caret"></span>
+						</button>
+						</div>
+						<ul class="dropdown-menu" role="menu" aria-labelledby="split-button">
+							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://sports.espn.go.com/espn/rss/nfl/news', 'ESPN')">ESPN</p></li>
+							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.rotowire.com/rss/news.htm?sport=nfl', 'RotoWire')">RotoWire</p></li>
+							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.cbssports.com/partners/feeds/rss/nfl_news', 'CBS')">CBS Sports NFL News</p></li>
+						</ul>
+					</div>
+					<div id="feed">
+						<div class="story" ng-repeat="story in sortedFeed">
+							<a href="{{ story.link }}" target="_blank"><h4 ng-bind-html="story.title"></h4></a>
+							<p ng-bind-html="story.publishedDate | date: 'short'"></p>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</div>

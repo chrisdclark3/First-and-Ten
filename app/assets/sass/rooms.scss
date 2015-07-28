@@ -1,3 +1,4 @@
+@import "_bootstrap.scss";
 @mixin vendorize($property, $value) {
     -webkit-#{$property}: $value;
     -moz-#{$property}: $value;
@@ -53,7 +54,7 @@ $secondary-color: black;
         margin: 0;
         padding: 0;
         display: table;
-        background: #3f4c6b;
+        background: $dark-background;
         width: 100%;
         li {
             display: table-cell;

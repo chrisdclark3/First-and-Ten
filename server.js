@@ -18,6 +18,8 @@ var Room = require(directory + '/server/models/room.js');
 
 app.use(express.static('./app'));
 
+
+
 // usernames which are currently connected to the chat
 var users = {};
 var messages = {};
@@ -25,11 +27,11 @@ var room;
 // rooms which are currently available in chat
 
 io.sockets.on('connection', function(socket) {
-
 	socket.on('joinRoom', function(data) {
 		console.log("SERVER > joinRoom > data", data);
-		socket.join(data.room._id);
+		socket.join(data.room.abbr);
 		users[data.user.id] = data.user;
+		room = data.room;
 		socket.emit('setRoom', data.room);
 	});
 
@@ -52,15 +54,16 @@ io.sockets.on('connection', function(socket) {
 			if (err) {
 				socket.emit('errors', err);
 			} else {
-				io.to(roomId).emit('updateRoom', room);
+				io.to(room.abbr).emit('updateRoom', room);
 			}
 		});
 	});
 
 	socket.on('sendMessage', function(data) {
+		console.log('\n\nSERVER > data', data, '\n\n');
 		Room.findOne({
 			_id: data.roomId
-		}, function(err, room) {
+		}, function(err, aRoom) {
 			var hasStory = false;
 			var currentStory;
 			var currentStoryIndex;
@@ -68,70 +71,52 @@ io.sockets.on('connection', function(socket) {
 				content: data.content,
 				user: data.currentUser
 			};
-			room.stories.forEach(function(story) {
+			aRoom.stories.forEach(function(story, idx) {
+				console.log('SERVER > aRoom.stories.forEach > story.title AND data.story.title', story.title, data.story.title);
 				if (story.title == data.story.title) {
 					hasStory = true;
 					currentStory = story;
-					currentStoryIndex = room.stories.indexOf(story);
+					currentStoryIndex = idx;
 				}
 			});
-			if (hasStory === false) {
+			if (hasStory != true) {
 				data.story.messages = [message];
-				room.stories.push(data.story);
+				aRoom.stories.push(data.story);
+				aRoom.save();
 			} else {
-				room.stories[currentStoryIndex].messages.push(message);
+				aRoom.stories[currentStoryIndex].messages.push(message);
+				aRoom.save();
 			}
-
-			room.save();
-			console.log('SERVER > NEW MESSAGE > UPDATED ROOM', room);
-			io.to(data.roomId).emit('updateRoom', room);
+			console.log('SERVER > NEW MESSAGE > UPDATED ROOM', aRoom);
+			io.to(aRoom.abbr).emit('updateRoom', aRoom);
 		});
 	});
 
 	socket.on('deleteMessage', function(data) {
 		console.log('SERVER > DELETE MESSAGE > QUERY DATA', data);
-		Room.findOneAndUpdate({
-				_id: data.roomId
-			}, {
-				$pull: {
-					stories: {
-						messages: {
-							_id: data._id
+		Room.findOne({
+			'_id': data.roomId
+		}, function(err, aRoom) {
+			if (err) {
+				socket.emit('errors', err);
+			} else {
+				aRoom.stories.forEach(function (story, storyIdx) {
+					story.messages.forEach( function (msg, messageIdx) {
+						if (msg._id == data._id) {
+							story.messages.splice(messageIdx, 1);
 						}
+					});
+					if (story.messages.length == 0) {
+						aRoom.stories.splice(storyIdx, 1);
 					}
-				}
-			}, {
-				new: true
-			},
-			function (err, updatedRoom) {
-				if (err) {
-					socket.emit('errors', err);
-				} else {
-					console.log('SERVER > DELETE MESSAGE > ROOM', updatedRoom);
-					console.log('SERVER > updatedRoom._id', updatedRoom._id);
-					io.to(updatedRoom._id).emit('updateRoom', updatedRoom);
-				}
+				});
+
+				aRoom.save();
+				console.log('SERVER > DELETE MESSAGE > ROOM', aRoom);
+				console.log('SERVER > aRoom._id', aRoom._id);
+				console.log('SERVER > aRoom', aRoom);
+				io.to(aRoom.abbr).emit('updateRoom', aRoom);
 			}
-		);
+		});
 	});
 });
-
-// socket.on('new_user', function (data) {
-//   if (rooms[room].users) {
-//     rooms[room].users.push(data);
-//   } else {
-//     rooms[room].users = [];
-//     rooms[room].users.push(data);
-//   }
-//   io.to(room).emit('all_messages', rooms[room].messages);
-// });
-
-
-
-// socket.on('client_remove_user', function (data) {
-//   for (var i = 0; i < rooms[room]['users'].length; i++) {
-//     if (rooms[room].users[i]['name'] == data.name) {
-//       rooms[room].users.splice(i,1);
-//     }
-//   }
-// });

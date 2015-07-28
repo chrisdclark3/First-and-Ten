@@ -1,18 +1,17 @@
-app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageService) {
+app.factory('Feed', function ($q, $sce, $resource, $rootScope, Room, localStorageService, $log, $timeout) {
 
 	var factory = {};
 
 	factory.feedUrl = 'http://sports.espn.go.com/espn/rss/nfl/news';
+	factory.feedSrc = 'ESPN';
 	factory.feed = localStorageService.get('feed');
 	factory.sortedFeed = localStorageService.get('sortedFeed');
-	factory.currentUser = localStorageService.get('currentUser');
-	factory.currentRoom = localStorageService.get('currentRoom');
 
-	function trustStory(story) {
+	factory.trustStory = function(story) {
 		for (var i = 0; i < story.length; i++) {
 			$sce.trustHtml(story[i]);
 		}
-	}
+	};
 
 	function formatDate (story) {
 		return new Date(story.publishedDate);
@@ -20,8 +19,8 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageServi
 
 	function sortFeed (story) {
 		var includeStory = false;
-		for (var i = 0; i < factory.currentRoom.keywords.length; i++) {
-			var word = factory.currentRoom.keywords[i];
+		for (var i = 0; i < Room.currentRoom.keywords.length; i++) {
+			var word = Room.currentRoom.keywords[i];
 			if (story.content.toLowerCase().indexOf(word) != -1 || story.title.toLowerCase().indexOf(word) != -1) {
 				includeStory = true;
 			}
@@ -32,9 +31,10 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageServi
 	function config () {
 		return $q(function (resolve, reject) {
 			var feed = new google.feeds.Feed(factory.feedUrl);
-			feed.setNumEntries(100);
+			feed.setNumEntries(300);
 			feed.includeHistoricalEntries();
 			feed.load(function (result) {
+				console.log("FACT > feed.load result", result);
 				if (!result.error) {
 					resolve(result.feed.entries);
 				} else {
@@ -50,8 +50,10 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageServi
 			var sortedFeed = [];
 			newFeed.forEach(function (story) {
 				if (sortFeed(story)) {
-					trustStory(story);
+					factory.trustStory(story);
 					story.publishedDate = formatDate(story);
+					story.author = factory.feedSrc;
+					story.image = 'https://s3.amazonaws.com/nflteamchat/logos/' + factory.feedSrc.toLowerCase() + '.jpeg';
 					sortedFeed.push(story);
 				}
 			});
@@ -60,7 +62,7 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageServi
 			localStorageService.set('sortedFeed', sortedFeed);
 			factory.sortedFeed = sortedFeed;
 
-			$rootScope.$broadcast('feedUpdate', sortedFeed);
+			$rootScope.$broadcast('feedUpdate', sortedFeed, factory.feedSrc);
 		});
 	};
 
@@ -76,16 +78,22 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, localStorageServi
 
 	factory.sendMessage = function (queryData) {
 		console.log('FACT > sendMessage > queryData', queryData);
-		queryData.roomId = factory.currentRoom._id;
-		queryData.currentUser = factory.currentUser;
+		queryData.roomId = Room.currentRoom._id;
+		queryData.currentUser = Room.currentUser;
 		queryData.story = Feed.findStory(queryData.story.title);
 		Socket.emit('sendMessage', queryData);
 	};
 
 	factory.deleteMessage = function (queryData) {
 		console.log('SOCKET > deleteMessage > queryData', queryData);
-		queryData.roomId = factory.currentRoom._id;
+		queryData.roomId = Room.currentRoom._id;
 		Socket.emit('deleteMessage', queryData);
+	};
+
+	factory.setFeedUrl = function (url, name) {
+		factory.feedUrl = url;
+		factory.feedSrc = name;
+		factory.initialize();
 	};
 
 	return factory;

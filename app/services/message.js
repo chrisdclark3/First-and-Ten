@@ -1,16 +1,13 @@
-app.factory('Message', function (Feed, Socket) {
+app.factory('Message', function (Feed, Room, Socket) {
 
 	factory.sendMessage = function (queryData) {
-		queryData.roomId = Feed.currentRoom._id;
-		queryData.currentUser = Feed.currentUser;
-		queryData.story = Feed.findStory(queryData.story.title);
 		console.log('FACT > sendMessage > queryData', queryData);
 		Socket.emit('sendMessage', queryData);
 	};
 
 	factory.deleteMessage = function (queryData) {
-		console.log('SOCKET > deleteMessage > queryData', queryData);
-		queryData.roomId = Feed.currentRoom._id;
+		console.log('FACT > deleteMessage > queryData', queryData);
+		queryData.roomId = Room.currentRoom._id;
 		Socket.emit('deleteMessage', queryData);
 	};
 

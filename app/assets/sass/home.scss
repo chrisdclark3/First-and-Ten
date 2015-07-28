@@ -1,6 +1,11 @@
+@import "_bootstrap.scss";
+
 #home {
+    .btn-home {
+        background-color: $dark-background;
+        color: $yellow;
+    }
     font-family: sans-serif;
-    background-color: #f15941 !important;
     height: 100%;
     width: 100%;
     .jumbotron {
@@ -8,7 +13,6 @@
     }
     h1 {
         text-transform: uppercase;
-        color: #fdf6f0;
         font-size: 7.5em;
         font-weight: bold;
         text-shadow: 0.08em 0em #940f08;
@@ -19,7 +23,6 @@
         height: 40em;
     }
     button {
-        background-color: #3B5998;
         vertical-align: middle;
         color: white;
         i {

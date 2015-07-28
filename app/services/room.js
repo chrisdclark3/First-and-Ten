@@ -1,4 +1,4 @@
-app.factory('Room', function (Socket, Feed, $rootScope, localStorageService) {
+app.factory('Room', function (Socket, $rootScope, localStorageService) {
 
 	factory = {};
 
@@ -16,10 +16,11 @@ app.factory('Room', function (Socket, Feed, $rootScope, localStorageService) {
 	};
 
 	Socket.on('setRoom', function (resData) {
+		console.log("SOCKET > setRoom > resData", resData);
 		localStorageService.remove('currentRoom');
 		localStorageService.set('currentRoom', resData);
 		factory.currentRoom = resData;
-		$rootScope.$broadcast('roomSet');
+		$rootScope.$broadcast('roomSet', resData);
 	});
 
 	factory.getRoom = function (queryData) {
@@ -39,7 +40,6 @@ app.factory('Room', function (Socket, Feed, $rootScope, localStorageService) {
 		console.log('SOCKET > updateRoom > resData', resData);
 		factory.updateRoom(resData);
 	});
-
 
 	Socket.on('errors', function (error) {
 		$rootScope.$broadcast('error', error);
