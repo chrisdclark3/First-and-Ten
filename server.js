@@ -29,10 +29,8 @@ var room;
 io.sockets.on('connection', function (socket) {
 
 	socket.on('joinRoom', function (data) {
-		console.log('\n\n\njoinRoom > data', data, '\n\n\n');
 		Room.get(data, function (res) {
 			socket.join(res.abbr);
-			console.log('\n\n\njoinRoom > res', res, '\n\n\n');
 			io.to(res.abbr).emit('setRoom', res);
 		});
 	});
@@ -45,15 +43,12 @@ io.sockets.on('connection', function (socket) {
 
 	socket.on('sendMessage', function (data) {
 		Room.post(data, function (res) {
-			console.log("\n\n\nSEND MESSAGE RES", res);
 			io.to(res.abbr).emit('updateRoom', res);
 		});
 	});
 
 	socket.on('deleteMessage', function (data) {
-		console.log('SERVER > DELETE MESSAGE > QUERY DATA', data);
 		Room.destroy(data, function (res) {
-			console.log('SERVER > DELETE MESSAGE > RES', res);
 			io.to(res.abbr).emit('updateRoom', res);
 		});
 	});

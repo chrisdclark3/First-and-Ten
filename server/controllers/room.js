@@ -55,7 +55,6 @@ module.exports = (function () {
 					res.stories[currentStoryIndex].messages.push(message);
 					res.save();
 				}
-        console.log('res in SendMessage Server', res);
 				callback(res);
 			});
 		},
@@ -78,7 +77,6 @@ module.exports = (function () {
 						}
 					});
 					res.save();
-          console.log('res in DestroyMessage Server', res);
 					callback(res);
 				}
 			});

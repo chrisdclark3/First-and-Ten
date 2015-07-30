@@ -10,10 +10,10 @@ app.factory('Room', function (Socket, $rootScope, localStorageService, $location
 
 	factory.updateRoom = function (data) {
 		localStorageService.set('currentRoom', data);
+		factory.currentRoom = data;
 	};
 
 	Socket.on('updateRoom', function (data) {
-		console.log("IN UPDATE ROOM", data);
 		factory.updateRoom(data);
 		$rootScope.$broadcast('roomUpdate', data);
 	});
