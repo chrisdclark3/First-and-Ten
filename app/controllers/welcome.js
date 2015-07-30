@@ -1,21 +1,29 @@
 
-app.controller('WelcomeCtrl', function($scope) {
+app.controller('WelcomeCtrl', function($scope, $timeout) {
+
+	$timeout(function () {
+		console.log("IN TIMEOUT FUNCTION");
+		var home = document.getElementById('home');
+		home.setAttribute('class','after-load container');
+	}, 6000, true);
+
+	var start_time = new Date();
 	var theLetters = "abcdefghijklmnopqrstuvwxyz#%&123456789";
 	$scope.runHeader = function (phrase) {
 		var start = 0;
 		var phraseLength = phrase.length;
-		var speed = 60; // ms per frame
-		var increment = 4; // frames per step. Must be >2
-		var randLetterLength = 3;
+		var speed = 45;
+		var increment = 4;
+		var randLetterLength = 4;
 		var si = 0;
 		var stri = 0;
 		var block = "";
 		var fixed = "";
-		//Call self x times, whole function wrapped in setTimeout
-		(function rustle(i) {
+
+		(function jostle(i) {
 			setTimeout(function() {
 				if (--i) {
-					rustle(i);
+					jostle(i);
 				}
 				nextFrame(i);
 				si = si + 1;
@@ -38,6 +46,8 @@ app.controller('WelcomeCtrl', function($scope) {
 			$scope.$apply(function() {
 				if (fixed.length == phraseLength) {
 					$scope.welcomeHeader = fixed;
+					var end_time = new Date();
+					console.log("DURATION", end_time - start_time);
 				} else {
 					$scope.welcomeHeader = fixed + block;
 				}

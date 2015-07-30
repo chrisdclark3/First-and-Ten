@@ -1,13 +1,13 @@
 <div ng-include src="'views/navbar.html'" autoscroll></div>
 <div class="container" ng-controller="RoomsCtrl">
-    <h1>NFL Teams</h1>
+    <h1>AFC East Teams</h1>
     <div id="rooms">
         <div class="room" ng-repeat="room in rooms">
             <div class="img-container">
                 <img ng-src="{{ room.image }}">
             </div>
             <div>
-                <button class="btn btn-block btn-warning" ng-click="joinRoom(room);">Join</button>
+                <button class="btn btn-block btn-success" ng-click="joinRoom(room);">Join</button>
             </div>
         </div>
     </div>

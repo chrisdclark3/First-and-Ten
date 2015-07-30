@@ -1,49 +1,38 @@
-app.controller('RoomCtrl', function ($scope, $rootScope, Room, Feed, Message, localStorageService) {
+app.controller('RoomCtrl', function ($scope, $rootScope, Room, Feed, Message, localStorageService, $location) {
 
-	$scope.currentUser = localStorageService.get('currentUser');
+	Feed.initialize();
 	$scope.currentRoom = localStorageService.get('currentRoom');
 	Room.joinRoom($scope.currentRoom);
 
-	$scope.getRoom = function () {
-		Room.getRoom($scope.currentRoom);
-	};
 
 	$scope.$on('roomUpdate', function (event, data) {
-		console.log("CONTROLLER > roomUpdate > data", data);
+		Feed.initialize();
+		console.log("scope.on roomUpdate > data OUTSIDE", data);
 		$scope.currentRoom = data;
 	});
-
-	$scope.$on('roomSet', function (event, data) {
-		console.log("CTRL > roomSet > localStorageService.get(currentRoom)", localStorageService.get('currentRoom'));
-		$scope.currentRoom = data;
-	});
-
-	$scope.$on('error', function (event, data) {
-		$scope.errors = data;
-	});
-
-	Feed.initialize();
 
 	$scope.$on('feedUpdate', function(event, sortedFeedData, feedSrc) {
-		console.log('BROAD > feedUpdate > sortedFeedData', sortedFeedData);
 		$scope.sortedFeed = sortedFeedData;
 		$scope.feedSrc = feedSrc;
 	});
 
+
+	function clearSearchFeed () {
+		if ($scope.searchFeed.length == 1 && ($scope.newMessage.story.title == $scope.searchFeed[0])) {
+			$scope.searchFeed = "";
+		}
+	}
+
 	$scope.search = function() {
-		console.log("CTRL > search > input", $scope.newMessage);
 		if ($scope.newMessage.story.title != "") {
 			var searchFeed = [];
 			$scope.sortedFeed.forEach(function(story) {
 				if (story.title.indexOf($scope.newMessage.story.title) != -1) {
-					searchFeed.push(story.title);
+					searchFeed.push(story);
 				}
 			});
 			$scope.searchFeed = searchFeed;
-			console.log("CTRL > search > searchFeed", $scope.searchFeed);
-			if ($scope.searchFeed.length == 1 && ($scope.newMessage.story.title == $scope.searchFeed[0])) {
-				$scope.searchFeed = "";
-			}
+			clearSearchFeed();
 		} else {
 			$scope.searchFeed = "";
 		}
@@ -54,17 +43,25 @@ app.controller('RoomCtrl', function ($scope, $rootScope, Room, Feed, Message, lo
 		$scope.searchFeed = "";
 	};
 
-	$scope.sendMessage = function () {
-		console.log('CTRL > sendMessage > scope.newMessage', $scope.newMessage);
-		$scope.newMessage.roomId = Room.currentRoom._id;
-		$scope.newMessage.currentUser = Room.currentUser;
+	function clearMessageAndFeed () {
+		$scope.newMessage = "";
+		$scope.searchFeed = "";
+	}
+
+	function prepMessage () {
+		$scope.newMessage.room = $scope.currentRoom;
+		$scope.newMessage.currentUser = $rootScope.currentUser;
 		$scope.newMessage.story = Feed.findStory($scope.newMessage.story.title);
+	}
+
+	$scope.sendMessage = function () {
+		prepMessage();
+		console.log("Send message", $scope.newMessage);
 		Message.sendMessage($scope.newMessage);
-		$scope.newMessage.content = "";
+		clearMessageAndFeed();
 	};
 
 	$scope.deleteMessage = function (data) {
-		console.log('CTRL > deleteMessage > data', data);
 		Message.deleteMessage(data);
 	};
 

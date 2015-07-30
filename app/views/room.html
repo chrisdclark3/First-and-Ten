@@ -1,63 +1,73 @@
 <div ng-include src="'views/navbar.html'" autoscroll></div>
-<div class="container" ng-controller="RoomCtrl">
-	<div id="room">
-		<h1>the {{ currentRoom.name }}</h1>
-		<p ng-if="errors"> {{ errors }}</p>
+<div id="room">
+	<div class="container" ng-controller="RoomCtrl">
+		<h1>The {{ currentRoom.name }}</h1>
 		<div class="row">
-			<div class="col-xs-6">
-				<div class="storyMsg" ng-repeat="story in currentRoom.stories">
-					<div class="story-wrapper">
-						<div class="row">
-							<img ng-src="{{ story.image }}" alt="" class="story-thumbnail img-responsive">
-							<h4><a href="{{ story.link }}" target="_blank">{{story.title}}</a></h4>
-						</div>
-					</div>
-					<div class="message" ng-repeat="message in story.messages">
-						<div class="row">
-							<div class="col-xs-1 icon-wrapper">
-								<img ng-src="{{ message.user.image }}" class="thumbnail" alt="">
+			<div class="col-xs-12 col-md-6">
+				<div id="left">
+					<div class="stories-and-messages" ng-repeat="newsStory in currentRoom.stories">
+						<div class="story-wrapper">
+							<div class="row">
+								<img ng-src="{{ newsStory.image }}" alt="" class="story-thumbnail img-responsive">
+								<h4><a href="{{ newsStory.link }}" target="_blank">{{ newsStory.title}}</a></h4>
 							</div>
-							<div class="col-xs-11">
-								<h5>{{ message.user.name }}<small>{{ message.createdAt | date: "MM/dd/yyyy 'at' h:mma" }}</small></h5>
-								<p>{{ message.content }}</p>
-								<i class="fa fa-times fa-lg" ng-show="message.user = currentUser" ng-click="deleteMessage(message)"></i>
+						</div>
+						<div class="message-wrapper" ng-repeat="msg in newsStory.messages">
+							<div class="inner-message-wrapper">
+								<div class="image-wrapper">
+									<img ng-src="{{ msg.user.image }}" class="thumbnail" alt="">
+								</div>
+								<div class="message">
+									<p class="h5">{{ msg.user.name }}<small>{{ msg.createdAt | date: "MM/dd/yyyy 'at' h:mma" }}</small><i class="fa fa-times fa-lg" ng-hide="currentUser.id != msg.user.id" ng-click="deleteMessage(msg)"></i></p>
+									<p>
+									{{ msg.content }}</p>
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="new-message" ng-form>
-					<input type="text" class="form-control" ng-model="newMessage.content" placeholder="New Message">
-					<div class="input-group">
-						<input type="text" class="form-control" placeholder="Attach a story" ng-model="newMessage.story.title" ng-change="search()">
-						<span class="input-group-btn"><button class="btn btn-default" type="button" ng-click="sendMessage()">Send</button></span>
+				<div id="new-message" ng-form name="newMessageForm">
+					<div ng-messages="newMessageForm.$error" class="help-block">
+						<div class="error"ng-message="required" ng-if="(newMessageForm.content.$dirty && newMessageForm.content.$invalid) || (submitted && newMessageForm.content.$invalid)"><b>New Message</b> is a required field</div>
+						<div class="error"ng-message="required" ng-if="(newMessageForm.story.$dirty && newMessageForm.story.$invalid) || (submitted && newMessageForm.story.$invalid)"><b>Story</b> is a required field</div>
 					</div>
-					<div id="searchFeed">
-						<div class="searchStory" ng-repeat="title in searchFeed">
-							<p ng-click="setMessageStory(title)" ng-bind-html="title">{{ title }}</p>
+					<input name="content" type="text" class="form-control" ng-model="newMessage.content" placeholder="New Message" required>
+					<div class="input-group">
+						<input name="story" type="text" class="form-control" placeholder="Attach a story" ng-model="newMessage.story.title" ng-change="search()" required>
+						<span class="input-group-btn" ng-class="{'has-error': submitted && newMessageForm.$invalid }">
+							<button class="btn btn-success" ng-if="newMessageForm.$valid" type="submit" ng-click="sendMessage(); newMessageForm.$setPristine();">Send</button>
+							<button class="btn btn-success" ng-if="newMessageForm.$invalid" type="button" ng-click="newMessageForm.$setDirty()">Send</button>
+						</span>
+					</div>
+					<div id="search-feed">
+						<div class="search-story" ng-repeat="story in searchFeed">
+							<p class="a" ng-click="setMessageStory(story.title)">{{ story.title }}</p>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="col-xs-6">
-				<div id="news-feed">
-					<div id="feed-header">
-					<h4>Select a news feed: </h4>
-					<div class="btn-group" dropdown>
-						<button id="split-button" type="button" class="btn btn-info">{{ feedSrc }}</button>
-							<button type="button" class="btn btn-info" dropdown-toggle>
-							<span class="caret"></span>
-						</button>
+			<div class="col-xs-12 col-md-6">
+				<div id="right">
+					<div id="news-feed">
+						<div id="feed-header">
+							<h4>Select a news feed: </h4>
+							<div class="btn-group" dropdown>
+								<button id="split-button" type="button" class="btn btn-info">{{ feedSrc }}</button>
+								<button type="button" class="btn btn-info" dropdown-toggle>
+								<span class="caret"></span>
+								</button>
+								<ul class="dropdown-menu" role="menu" aria-labelledby="split-button">
+									<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://sports.espn.go.com/espn/rss/nfl/news', 'ESPN')">ESPN</p></li>
+									<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.rotowire.com/rss/news.htm?sport=nfl', 'RotoWire')">RotoWire</p></li>
+									<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.cbssports.com/partners/feeds/rss/nfl_news', 'CBS')">CBS Sports NFL News</p></li>
+								</ul>
+							</div>
 						</div>
-						<ul class="dropdown-menu" role="menu" aria-labelledby="split-button">
-							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://sports.espn.go.com/espn/rss/nfl/news', 'ESPN')">ESPN</p></li>
-							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.rotowire.com/rss/news.htm?sport=nfl', 'RotoWire')">RotoWire</p></li>
-							<li role="menuitem"><p class="a" ng-click="setFeedUrl('http://www.cbssports.com/partners/feeds/rss/nfl_news', 'CBS')">CBS Sports NFL News</p></li>
-						</ul>
-					</div>
-					<div id="feed">
-						<div class="story" ng-repeat="story in sortedFeed">
-							<a href="{{ story.link }}" target="_blank"><h4 ng-bind-html="story.title"></h4></a>
-							<p ng-bind-html="story.publishedDate | date: 'short'"></p>
+						<div id="feed">
+							<div class="story" ng-repeat="s in sortedFeed">
+								<a href="{{ s.link }}" target="_blank"><h4>{{s.title}}</h4></a>
+								<p>{{s.publishedDate | date: 'short'}}</p>
+							</div>
 						</div>
 					</div>
 				</div>

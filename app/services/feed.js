@@ -7,10 +7,26 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, Room, localStorag
 	factory.feed = localStorageService.get('feed');
 	factory.sortedFeed = localStorageService.get('sortedFeed');
 
-	factory.trustStory = function(story) {
-		for (var i = 0; i < story.length; i++) {
-			$sce.trustHtml(story[i]);
-		}
+	factory.replaceHtmlChars = function(story) {
+		console.log("IN REPLACE HTML CHARS");
+    var translate_re = /&(amp|quot|lt|gt|ndash|apos);/g;
+    var translate = {
+            "amp" : "&",
+            "quot": '"',
+            "lt"  : "<",
+            "gt"  : ">",
+            "ndash":"-",
+            "apos": "'"
+        };
+    function translator($0, $1) {
+        return translate[$1];
+    }
+
+    story.title = story.title.replace(translate_re, translator);
+    story.content = story.content.replace(translate_re, translator);
+    story.contentSnippet = story.contentSnippet.replace(translate_re, translator);
+
+    return story;
 	};
 
 	function formatDate (story) {
@@ -50,7 +66,7 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, Room, localStorag
 			var sortedFeed = [];
 			newFeed.forEach(function (story) {
 				if (sortFeed(story)) {
-					factory.trustStory(story);
+					story = factory.replaceHtmlChars(story);
 					story.publishedDate = formatDate(story);
 					story.author = factory.feedSrc;
 					story.image = 'https://s3.amazonaws.com/nflteamchat/logos/' + factory.feedSrc.toLowerCase() + '.jpeg';
@@ -61,7 +77,6 @@ app.factory('Feed', function ($q, $sce, $resource, $rootScope, Room, localStorag
 
 			localStorageService.set('sortedFeed', sortedFeed);
 			factory.sortedFeed = sortedFeed;
-
 			$rootScope.$broadcast('feedUpdate', sortedFeed, factory.feedSrc);
 		});
 	};
