@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({
 	extended: true
 }));
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/1stand10');
+mongoose.connect('mongodb://chrisdclark3:password@ds047020.mongolab.com:47020/heroku_2hgp314f');
 var Room = require(directory + '/server/controllers/room.js');
 
 app.use(express.static('./app'));
